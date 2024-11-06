@@ -14,7 +14,7 @@
   "rulesetFile": "CegekaAT.ruleset.json",
   "runs-on": "ubuntu-latest",
   "skipUpgrade": true,
-  "templateUrl": "https://github.com/cegekaJG/AL-Go-PTE@cegeka",
+  "templateUrl": "https://github.com/CBS-BC-AT/AL-Go-PTE@cegeka/v6.0",
   "templateFiles": [
     ".github/DeployTo*.ps1",
     ".schemas/*"
