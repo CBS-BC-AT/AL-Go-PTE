@@ -1,5 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/AL-Go/v5.1/Schema/algosettingssyntax.json",
-  "country": "at",
-  "generateDependencyArtifact": true
+  "country": "us",
+  "appFolders": [],
+  "testFolders": [],
+  "bcptTestFolders": []
 }
