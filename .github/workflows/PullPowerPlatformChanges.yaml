@@ -38,7 +38,7 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@testbranch/v6.0
         with:
           shell: powershell
 
@@ -51,14 +51,14 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "envName=$envName"
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@testbranch/v6.0
         with:
           shell: powershell
           get: powerPlatformSolutionFolder
 
       - name: Read secrets
         id: ReadSecrets
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@testbranch/v6.0
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -67,7 +67,7 @@ jobs:
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@testbranch/v6.0
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -89,7 +89,7 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "solutionFolder=$solutionFolder"
 
       - name: Pull changes from Power Platform environment
-        uses: CBS-BC-AT/AL-Go-Actions/PullPowerPlatformChanges@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/PullPowerPlatformChanges@testbranch/v6.0
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
@@ -102,7 +102,7 @@ jobs:
 
       - name: Finalize the workflow
         if: always()
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@testbranch/v6.0
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:

@@ -61,14 +61,14 @@ jobs:
           lfs: true
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@testbranch/v6.0
         with:
           shell: ${{ inputs.shell }}
           project: ${{ inputs.project }}
           get: type,powerPlatformSolutionFolder,appRevision,appBuild
 
       - name: Build
-        uses: CBS-BC-AT/AL-Go-Actions/BuildPowerPlatform@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/BuildPowerPlatform@testbranch/v6.0
         with:
           shell: ${{ inputs.shell }}
           solutionFolder: ${{ inputs.project }}
@@ -79,7 +79,7 @@ jobs:
 
       - name: Calculate Artifact names
         id: calculateArtifactsNames
-        uses: CBS-BC-AT/AL-Go-Actions/CalculateArtifactNames@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/CalculateArtifactNames@testbranch/v6.0
         if: success() || failure()
         with:
           shell: ${{ inputs.shell }}
