@@ -3,6 +3,11 @@ name: 'Pull Request Build'
 on:
   pull_request_target:
     branches: [ 'main' ]
+    types:
+      - synchronize
+      - opened
+      - reopened
+      - ready_for_review
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -25,14 +30,14 @@ env:
 
 jobs:
   PregateCheck:
-    if: (github.event.pull_request.base.repo.full_name != github.event.pull_request.head.repo.full_name) && (github.event_name != 'pull_request')
+    if: (github.event.pull_request.base.repo.full_name != github.event.pull_request.head.repo.full_name) && (github.event_name != 'pull_request') && (github.event.pull_request.draft == false)
     runs-on: windows-latest
     steps:
-      - uses: CBS-BC-AT/AL-Go-Actions/VerifyPRChanges@v6.0
+      - uses: CBS-BC-AT/AL-Go-Actions/VerifyPRChanges@testbranch/6.3
 
   Initialization:
     needs: [ PregateCheck ]
-    if: (!failure() && !cancelled())
+    if: (!failure() && !cancelled()) && (github.event.pull_request.draft == false)
     runs-on: [ windows-latest ]
     outputs:
       projects: ${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}
@@ -40,46 +45,49 @@ jobs:
       buildOrderJson: ${{ steps.determineProjectsToBuild.outputs.BuildOrderJson }}
       baselineWorkflowRunId: ${{ steps.determineProjectsToBuild.outputs.BaselineWorkflowRunId }}
       workflowDepth: ${{ steps.DetermineWorkflowDepth.outputs.WorkflowDepth }}
+      artifactsRetentionDays: ${{ steps.DetermineWorkflowDepth.outputs.ArtifactsRetentionDays }}
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
     steps:
       - name: Dump Workflow Information
-        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@testbranch/6.3
         with:
           shell: powershell
 
       - name: Checkout
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           lfs: true
           ref: ${{ github.event_name == 'pull_request' && github.sha || format('refs/pull/{0}/merge', github.event.pull_request.number) }}
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@testbranch/6.3
         with:
           shell: powershell
 
       - name: Read settings
         id: ReadSettings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@testbranch/6.3
         with:
           shell: powershell
+          get: shortLivedArtifactsRetentionDays
 
       - name: Determine Workflow Depth
         id: DetermineWorkflowDepth
         run: |
           Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "WorkflowDepth=$($env:workflowDepth)"
+          Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "ArtifactsRetentionDays=$($env:shortLivedArtifactsRetentionDays)"
 
       - name: Determine Projects To Build
         id: determineProjectsToBuild
-        uses: CBS-BC-AT/AL-Go-Actions/DetermineProjectsToBuild@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/DetermineProjectsToBuild@testbranch/6.3
         with:
           shell: powershell
           maxBuildDepth: ${{ env.workflowDepth }}
 
   Build:
     needs: [ Initialization ]
-    if: (!failure()) && (!cancelled()) && fromJson(needs.Initialization.outputs.buildOrderJson)[0].projectsCount > 0
+    if: (!failure()) && (!cancelled()) && fromJson(needs.Initialization.outputs.buildOrderJson)[0].projectsCount > 0 && (github.event.pull_request.draft == false)
     strategy:
       matrix:
         include: ${{ fromJson(needs.Initialization.outputs.buildOrderJson)[0].buildDimensions }}
@@ -97,18 +105,18 @@ jobs:
       projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
       baselineWorkflowRunId: ${{ needs.Initialization.outputs.baselineWorkflowRunId }}
       secrets: 'licenseFileUrl,keyVaultCertificateUrl,*keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString'
-      publishThisBuildArtifacts: ${{ needs.Initialization.outputs.workflowDepth > 1 }}
+      artifactsRetentionDays: ${{ fromJson(needs.Initialization.outputs.artifactsRetentionDays) }}
       artifactsNameSuffix: 'PR${{ github.event.number }}'
 
   StatusCheck:
     needs: [ Initialization, Build ]
-    if: (!cancelled())
+    if: (!cancelled()) && (github.event.pull_request.draft == false)
     runs-on: [ windows-latest ]
     name: Pull Request Status Check
     steps:
       - name: Pull Request Status Check
         id: PullRequestStatusCheck
-        uses: CBS-BC-AT/AL-Go-Actions/PullRequestStatusCheck@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/PullRequestStatusCheck@testbranch/6.3
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -116,7 +124,7 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@v6.0
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@testbranch/6.3
         if: success() || failure()
         env:
           GITHUB_TOKEN: ${{ github.token }}
