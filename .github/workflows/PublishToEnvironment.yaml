@@ -36,7 +36,7 @@ jobs:
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
     steps:
       - name: Dump Workflow Information
-        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@cegeka/preview
         with:
           shell: powershell
 
@@ -45,19 +45,19 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/preview
         with:
           shell: powershell
 
       - name: Read settings
         id: ReadSettings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/preview
         with:
           shell: powershell
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@cegeka/preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -75,7 +75,7 @@ jobs:
 
       - name: Read secrets
         id: ReadSecrets
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/preview
         if: steps.DetermineDeploymentEnvironments.outputs.UnknownEnvironment == 1
         with:
           shell: powershell
@@ -107,7 +107,7 @@ jobs:
             Write-Host "No AuthContext provided for $envName, initiating Device Code flow"
             $ALGoHelperPath = "$([System.IO.Path]::GetTempFileName()).ps1"
             $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFile('https://raw.githubusercontent.com/CBS-BC-AT/AL-Go-Actions/cegeka/6.3/AL-Go-Helper.ps1', $ALGoHelperPath)
+            $webClient.DownloadFile('https://raw.githubusercontent.com/CBS-BC-AT/AL-Go-Actions/cegeka/preview/AL-Go-Helper.ps1', $ALGoHelperPath)
             . $ALGoHelperPath
             DownloadAndImportBcContainerHelper
             $authContext = New-BcAuthContext -includeDeviceLogin -deviceLoginTimeout ([TimeSpan]::FromSeconds(0))
@@ -141,21 +141,21 @@ jobs:
           Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "envName=$envName"
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/preview
         with:
           shell: ${{ matrix.shell }}
           get: type,powerPlatformSolutionFolder
 
       - name: Read secrets
         id: ReadSecrets
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/preview
         with:
           shell: ${{ matrix.shell }}
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: '${{ steps.envName.outputs.envName }}-AuthContext,${{ steps.envName.outputs.envName }}_AuthContext,AuthContext'
 
       - name: Get Artifacts for deployment
-        uses: CBS-BC-AT/AL-Go-Actions/GetArtifactsForDeployment@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/GetArtifactsForDeployment@cegeka/preview
         with:
           shell: ${{ matrix.shell }}
           artifactsVersion: ${{ github.event.inputs.appVersion }}
@@ -163,7 +163,7 @@ jobs:
 
       - name: Deploy to Business Central
         id: Deploy
-        uses: CBS-BC-AT/AL-Go-Actions/Deploy@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/Deploy@cegeka/preview
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
@@ -175,7 +175,7 @@ jobs:
 
       - name: Deploy to Power Platform
         if: env.type == 'PTE' && env.powerPlatformSolutionFolder != ''
-        uses: CBS-BC-AT/AL-Go-Actions/DeployPowerPlatform@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DeployPowerPlatform@cegeka/preview
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
@@ -194,7 +194,7 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:

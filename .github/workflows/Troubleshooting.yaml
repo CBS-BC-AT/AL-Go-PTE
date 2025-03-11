@@ -30,7 +30,7 @@ jobs:
           lfs: true
 
       - name: Troubleshooting
-        uses: CBS-BC-AT/AL-Go-Actions/Troubleshooting@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/Troubleshooting@cegeka/preview
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}

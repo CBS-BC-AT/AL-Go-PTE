@@ -29,7 +29,7 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/preview
         with:
           shell: powershell
 
@@ -43,14 +43,14 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "envName=$envName"
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/preview
         with:
           shell: powershell
           get: powerPlatformSolutionFolder
 
       - name: Read secrets
         id: ReadSecrets
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSecrets@cegeka/preview
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -58,7 +58,7 @@ jobs:
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DetermineDeploymentEnvironments@cegeka/preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -80,7 +80,7 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "solutionFolder=$solutionFolder"
 
       - name: Export and push changes to Power Platform
-        uses: CBS-BC-AT/AL-Go-Actions/DeployPowerPlatform@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DeployPowerPlatform@cegeka/preview
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Finalize the workflow
         if: always()
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:

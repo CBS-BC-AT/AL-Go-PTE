@@ -33,7 +33,7 @@ jobs:
     if: (github.event.pull_request.base.repo.full_name != github.event.pull_request.head.repo.full_name) && (github.event_name != 'pull_request') && (github.event.pull_request.draft == false)
     runs-on: windows-latest
     steps:
-      - uses: CBS-BC-AT/AL-Go-Actions/VerifyPRChanges@cegeka/6.3
+      - uses: CBS-BC-AT/AL-Go-Actions/VerifyPRChanges@cegeka/preview
 
   Initialization:
     needs: [ PregateCheck ]
@@ -44,12 +44,13 @@ jobs:
       projectDependenciesJson: ${{ steps.determineProjectsToBuild.outputs.ProjectDependenciesJson }}
       buildOrderJson: ${{ steps.determineProjectsToBuild.outputs.BuildOrderJson }}
       baselineWorkflowRunId: ${{ steps.determineProjectsToBuild.outputs.BaselineWorkflowRunId }}
+      baselineWorkflowSHA: ${{ steps.determineProjectsToBuild.outputs.BaselineWorkflowSHA }}
       workflowDepth: ${{ steps.DetermineWorkflowDepth.outputs.WorkflowDepth }}
       artifactsRetentionDays: ${{ steps.DetermineWorkflowDepth.outputs.ArtifactsRetentionDays }}
       telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
     steps:
       - name: Dump Workflow Information
-        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DumpWorkflowInfo@cegeka/preview
         with:
           shell: powershell
 
@@ -61,13 +62,13 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowInitialize@cegeka/preview
         with:
           shell: powershell
 
       - name: Read settings
         id: ReadSettings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@cegeka/preview
         with:
           shell: powershell
           get: shortLivedArtifactsRetentionDays
@@ -80,7 +81,7 @@ jobs:
 
       - name: Determine Projects To Build
         id: determineProjectsToBuild
-        uses: CBS-BC-AT/AL-Go-Actions/DetermineProjectsToBuild@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/DetermineProjectsToBuild@cegeka/preview
         with:
           shell: powershell
           maxBuildDepth: ${{ env.workflowDepth }}
@@ -104,9 +105,11 @@ jobs:
       buildMode: ${{ matrix.buildMode }}
       projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
       baselineWorkflowRunId: ${{ needs.Initialization.outputs.baselineWorkflowRunId }}
+      baselineWorkflowSHA: ${{ needs.Initialization.outputs.baselineWorkflowSHA }}
       secrets: 'licenseFileUrl,keyVaultCertificateUrl,*keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString'
       artifactsRetentionDays: ${{ fromJson(needs.Initialization.outputs.artifactsRetentionDays) }}
       artifactsNameSuffix: 'PR${{ github.event.number }}'
+      useArtifactCache: true
 
   StatusCheck:
     needs: [ Initialization, Build ]
@@ -116,7 +119,7 @@ jobs:
     steps:
       - name: Pull Request Status Check
         id: PullRequestStatusCheck
-        uses: CBS-BC-AT/AL-Go-Actions/PullRequestStatusCheck@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/PullRequestStatusCheck@cegeka/preview
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -124,7 +127,7 @@ jobs:
 
       - name: Finalize the workflow
         id: PostProcess
-        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/6.3
+        uses: CBS-BC-AT/AL-Go-Actions/WorkflowPostProcess@cegeka/preview
         if: success() || failure()
         env:
           GITHUB_TOKEN: ${{ github.token }}
