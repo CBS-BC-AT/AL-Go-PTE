@@ -41,6 +41,10 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+  actions: read
+
 env:
   ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
   ALGoRepoSettings: ${{ vars.ALGoRepoSettings }}
@@ -61,14 +65,14 @@ jobs:
           lfs: true
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@main
+        uses: CBS-BC-AT/AL-Go/Actions/ReadSettings@67df0e937d11a1d77725234c29c4c7c6b8aef845
         with:
           shell: ${{ inputs.shell }}
           project: ${{ inputs.project }}
           get: type,powerPlatformSolutionFolder,appRevision,appBuild
 
       - name: Build
-        uses: CBS-BC-AT/AL-Go-Actions/BuildPowerPlatform@main
+        uses: CBS-BC-AT/AL-Go/Actions/BuildPowerPlatform@67df0e937d11a1d77725234c29c4c7c6b8aef845
         with:
           shell: ${{ inputs.shell }}
           solutionFolder: ${{ inputs.project }}
@@ -79,7 +83,7 @@ jobs:
 
       - name: Calculate Artifact names
         id: calculateArtifactsNames
-        uses: CBS-BC-AT/AL-Go-Actions/CalculateArtifactNames@main
+        uses: CBS-BC-AT/AL-Go/Actions/CalculateArtifactNames@67df0e937d11a1d77725234c29c4c7c6b8aef845
         if: success() || failure()
         with:
           shell: ${{ inputs.shell }}
@@ -88,7 +92,7 @@ jobs:
           suffix: ${{ inputs.artifactsNameSuffix }}
 
       - name: Publish artifacts - Power Platform Solution
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: inputs.publishArtifacts
         with:
           name: ${{ steps.calculateArtifactsNames.outputs.PowerPlatformSolutionArtifactsName }}
