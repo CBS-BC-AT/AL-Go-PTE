@@ -41,10 +41,6 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: read
-  actions: read
-
 env:
   ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
   ALGoRepoSettings: ${{ vars.ALGoRepoSettings }}
@@ -65,14 +61,14 @@ jobs:
           lfs: true
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go/Actions/ReadSettings@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go-Actions/ReadSettings@main
         with:
           shell: ${{ inputs.shell }}
           project: ${{ inputs.project }}
           get: type,powerPlatformSolutionFolder,appRevision,appBuild
 
       - name: Build
-        uses: CBS-BC-AT/AL-Go/Actions/BuildPowerPlatform@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go-Actions/BuildPowerPlatform@main
         with:
           shell: ${{ inputs.shell }}
           solutionFolder: ${{ inputs.project }}
@@ -83,7 +79,7 @@ jobs:
 
       - name: Calculate Artifact names
         id: calculateArtifactsNames
-        uses: CBS-BC-AT/AL-Go/Actions/CalculateArtifactNames@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go-Actions/CalculateArtifactNames@main
         if: success() || failure()
         with:
           shell: ${{ inputs.shell }}
