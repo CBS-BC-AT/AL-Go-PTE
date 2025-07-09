@@ -29,7 +29,7 @@ jobs:
 
       - name: Initialize the workflow
         id: init
-        uses: CBS-BC-AT/AL-Go/Actions/WorkflowInitialize@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/WorkflowInitialize@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         with:
           shell: powershell
 
@@ -43,14 +43,14 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "envName=$envName"
 
       - name: Read settings
-        uses: CBS-BC-AT/AL-Go/Actions/ReadSettings@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/ReadSettings@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         with:
           shell: powershell
           get: powerPlatformSolutionFolder
 
       - name: Read secrets
         id: ReadSecrets
-        uses: CBS-BC-AT/AL-Go/Actions/ReadSecrets@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/ReadSecrets@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         with:
           shell: powershell
           gitHubSecrets: ${{ toJson(secrets) }}
@@ -58,7 +58,7 @@ jobs:
 
       - name: Determine Deployment Environments
         id: DetermineDeploymentEnvironments
-        uses: CBS-BC-AT/AL-Go/Actions/DetermineDeploymentEnvironments@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/DetermineDeploymentEnvironments@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -80,7 +80,7 @@ jobs:
           Add-Content -encoding utf8 -Path $env:GITHUB_ENV -Value "solutionFolder=$solutionFolder"
 
       - name: Export and push changes to Power Platform
-        uses: CBS-BC-AT/AL-Go/Actions/DeployPowerPlatform@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/DeployPowerPlatform@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         env:
           Secrets: '${{ steps.ReadSecrets.outputs.Secrets }}'
         with:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Finalize the workflow
         if: always()
-        uses: CBS-BC-AT/AL-Go/Actions/WorkflowPostProcess@67df0e937d11a1d77725234c29c4c7c6b8aef845
+        uses: CBS-BC-AT/AL-Go/Actions/WorkflowPostProcess@a9866c5ae2a6bf61cf6d02441b5900e6584a5884
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
